@@ -29,11 +29,9 @@ class Graph:
             graph = self.graph
         return nx.algorithms.tree.mst.minimum_spanning_tree(graph, algorithm='prim', ignore_nan=False)
 
-    def add(self, graph1, graph2=None):
+    def add(self, graph1, graph2): # add graph2 into graph1
         MG = nx.MultiGraph()
-        if not graph2:
-            graph2 = self.graph
-        MG.add_nodes_from(graph2)
+        MG.add_nodes_from(graph1)
         MG.add_weighted_edges_from(graph1.edges.data("weight"))
         MG.add_weighted_edges_from(graph2.edges.data("weight"))
         return MG
@@ -41,20 +39,25 @@ class Graph:
     def min_euler(self, c_graph):
         return nx.algorithms.euler.eulerian_circuit(c_graph)
 
-    def min_weight_match(self, graph=None): #negates the edge weight and make a max match
+    def min_weight_match_odd_nodes(self, graph=None): #negates the edge weight and make a max match
         if not graph:
             graph = self.graph
         neg_g=nx.Graph()
-        neg_g.add_nodes_from(graph)
+        for node in graph.nodes:
+            if node.degree[node] % 2 == 1:
+                neg_g.add_node(node)
         n = graph.number_of_nodes()
-        for i in range(n):
-            for j in range(i):
-                neg_g.add_edge(i, j, weight=-graph.edges[i][j])
-        return nx.algorithms.matching.max_weight_matching(neg_g, maxcardinality=True)
+        for i in neg_g.nodes:
+            for j in neg_g.nodes:
+                if i<j:
+                    neg_g.add_edge(i, j, weight=-graph.edges[i][j])
+        m = nx.algorithms.matching.max_weight_matching(neg_g, maxcardinality=True)#
+        return m
 
     def nearest(self, node, graph=None):
+        
         if not graph:
-            graph=self.graph
+            graph = self.graph
         n = graph.number_of_nodes()
         x = float("inf")
         index = -1
@@ -65,4 +68,11 @@ class Graph:
         return (x, index)
 
     def savings(self, node, graph=None):
-        pass
+        if not graph:
+            graph = self.graph
+        n = graph.number_of_nodes()
+        ar = np.zeros(n, n)
+        for i in range(n):
+            for j in range(i):
+                ar[i, j] = graph[node][i]["weight"] + graph[node][j]["weight"] - graph[i][j]["weight"]
+        return ar
