@@ -5,9 +5,6 @@ import graph as g
 Contains the definition of the algorithms
 """
 
-
-
-
 class Algorithm:
     def __init__(self, graph):
         self.graph = graph
@@ -152,10 +149,65 @@ class Algorithm:
     #these are the algorithm for any Euclid graph (can be embedded in an Euclidian plane, thus satisfies tri.inequality)
 
     def nearest(self, graph): #nearest method, factor=2
-        pass
+        nlist=[]
+        nlist.append(0)
+        nlist.append(graph.nearest(nlist[0])[1])
+        nodes=graph.number_of_nodes()
+        while len(nlist)<nodes:
+            x0=float("inf")
+            for r in nlist:
+                (x, index) = graph.nearest(r, exclude=nlist)
+                if x < x0:
+                    x0 = x
+                    index0 = index
+            s0=float("inf")
+            nelem=len(nlist)
+            for t in range(nelem):
+                s = graph.savings(nlist[t], nlist[(t+1)%nelem], index0)
+                if s < s0:
+                    s0 = s
+                    ind_s = t
+            nlist.insert((ind_s+1)%nelem, index0) # default inserts BEFORE the elem, here modified to AFTER the elem
+        return nlist
     def cheapest(self, graph): #cheapest method, factor=2
-        pass
+        nlist=[]
+        nlist.append(0)
+        nlist.append(graph.nearest(nlist[0])[1])
+        nodes=graph.number_of_nodes()
+        #cost = [None]*nodes
+        while len(nlist)<nodes:
+            cost_min=float("inf")
+            nelem=len(nlist)
+            for n2 in range(n):
+                if n2 in nlist:
+                    continue
+                for i in range(nelem):
+                    cost = graph.savings(nlist[i], nlist[(i+1)%nelem],n2)
+                    if cost_min<cost:
+                        cost_min=cost
+                        indices=[i,n2]
+            nlist.insert((indices[1]+1)%nelem, indices[2])
+        return nlist
     def farthest(self, graph): #farthest method, factor=log(2,n)+0.16
-        pass
+        nlist=[]
+        nlist.append(0)
+        nlist.append(graph.farthest(nlist[0])[1])
+        nodes=graph.number_of_nodes()
+        while len(nlist)<nodes:
+            x0=float("-inf")
+            for r in nlist:
+                (x, index) = graph.farthest(r, exclude=nlist)
+                if x > x0:
+                    x0 = x
+                    index0 = index
+            s0=float("inf")
+            nelem=len(nlist)
+            for t in range(nelem):
+                s = graph.savings(nlist[t], nlist[(t+1)%nelem], index0)
+                if s < s0:
+                    s0 = s
+                    ind_s = t
+            nlist.insert((ind_s+1)%nelem, index0)
+        return nlist
     
 

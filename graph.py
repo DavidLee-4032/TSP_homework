@@ -54,25 +54,36 @@ class Graph:
         m = nx.algorithms.matching.max_weight_matching(neg_g, maxcardinality=True)#
         return m
 
-    def nearest(self, node, graph=None):
-        
+    def nearest(self, node, graph=None, exclude=[]):#get the minimum distance node, excluding a list
         if not graph:
             graph = self.graph
         n = graph.number_of_nodes()
         x = float("inf")
         index = -1
         for i in range(n):
+            if i in exclude:
+                continue
             if graph[i][node]["weight"] < x:
                 x = graph[i][node]["weight"]
                 index = i
         return (x, index)
 
-    def savings(self, node, graph=None):
+    def farthest(self, node, graph=None, exclude=[]):#get the minimum distance node, excluding a list
         if not graph:
             graph = self.graph
         n = graph.number_of_nodes()
-        ar = np.zeros(n, n)
+        x = float("-inf")
+        index = -1
         for i in range(n):
-            for j in range(i):
-                ar[i, j] = graph[node][i]["weight"] + graph[node][j]["weight"] - graph[i][j]["weight"]
-        return ar
+            if i in exclude:
+                continue
+            if graph[i][node]["weight"] > x:
+                x = graph[i][node]["weight"]
+                index = i
+        return (x, index)
+
+    def savings(self, node1, node2, node3, graph=None):
+        if not graph:
+            graph = self.graph
+        s = graph[node1][node3]["weight"] + graph[node2][node3]["weight"] - graph[node1][node2]["weight"]
+        return s
