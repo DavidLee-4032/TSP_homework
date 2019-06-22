@@ -5,7 +5,7 @@ import scipy as sp
 
 
 class Graph:
-    def __init__(self, min_n, max_n, input_mode):
+    def __init__(self, min_n, max_n, input_mode,input=None):
         if input_mode == "random":
             self.cur_n=np.random.randint(max_n-min_n+1)+min_n
             self.graph = nx.Graph()
@@ -17,12 +17,15 @@ class Graph:
             for i in range(self.cur_n):
                 for j in range(i):
                     self.graph[i][j]["weight"] = fl[i,j]
-        elif input_mode == "input_point": #pointwise coordinate input
+
+        elif input_mode == "input_point": #pointwise coordinate input   input:[(2dcoordinates)]*n
+            
             pass
-        elif input_mode == "input_weight": #adjacent matrix input
+        elif input_mode == "input_weight": #adjacent matrix input   input:np.2darray
             pass
         else:
             assert(0)
+        self.route = []
 
     def min_tree(self, graph=None):
         if not graph:
@@ -39,20 +42,22 @@ class Graph:
     def min_euler(self, c_graph):
         return nx.algorithms.euler.eulerian_circuit(c_graph)
 
-    def min_weight_match_odd_nodes(self, graph=None): #negates the edge weight and make a max match
-        if not graph:
-            graph = self.graph
+    def min_weight_match_odd_nodes(self, graph): #negates the edge weight and make a max match, and return a graph of matching
         neg_g=nx.Graph()
         for node in graph.nodes:
-            if node.degree[node] % 2 == 1:
+            if graph.degree[node] % 2 == 1:
                 neg_g.add_node(node)
         n = graph.number_of_nodes()
         for i in neg_g.nodes:
             for j in neg_g.nodes:
                 if i<j:
-                    neg_g.add_edge(i, j, weight=-graph.edges[i][j])
-        m = nx.algorithms.matching.max_weight_matching(neg_g, maxcardinality=True)#
-        return m
+                    neg_g.add_edge(i, j, weight=-self.graph[i][j]["weight"])
+        m = nx.algorithms.matching.max_weight_matching(neg_g, maxcardinality=True)
+        neg_g1=nx.Graph()
+        neg_g1.add_nodes_from(neg_g)
+        for e in m:
+            neg_g1.add_edge(e[0], e[1], weight=-neg_g[e[0]][e[1]]["weight"])
+        return neg_g1
 
     def nearest(self, node, graph=None, exclude=[]):#get the minimum distance node, excluding a list
         if not graph:
@@ -87,3 +92,10 @@ class Graph:
             graph = self.graph
         s = graph[node1][node3]["weight"] + graph[node2][node3]["weight"] - graph[node1][node2]["weight"]
         return s
+
+    def cal(self):
+        cost=0
+        n=self.cur_n
+        for i in range(self.cur_n):
+            cost += self.graph[self.route[i]][self.route[(i+1)%n]]["weight"]
+        return cost
