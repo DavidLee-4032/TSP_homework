@@ -1,14 +1,13 @@
 import numpy as np
 import networkx as nx
 import random as rdm
-import scipy as sp
-
+import math
 
 class Graph:
-    def __init__(self, min_n, max_n, input_mode,input=None):
+    def __init__(self, input_mode, min_n=0, max_n=0, input_data=None):
+        self.graph = nx.Graph()
         if input_mode == "random":
             self.cur_n=np.random.randint(max_n-min_n+1)+min_n
-            self.graph = nx.Graph()
             self.graph.add_nodes_from(range(self.cur_n))
             for i in range(self.cur_n):
                 for j in range(i):
@@ -18,13 +17,26 @@ class Graph:
                 for j in range(i):
                     self.graph[i][j]["weight"] = fl[i,j]
 
-        elif input_mode == "input_point": #pointwise coordinate input   input:[(2dcoordinates)]*n
-            
-            pass
-        elif input_mode == "input_weight": #adjacent matrix input   input:np.2darray
-            pass
+        elif input_mode == "input_point": #pointwise coordinate input   input_data:[(2d_coordinates)]*n
+            self.cur_n=len(input_data)
+            self.graph.add_nodes_from(range(self.cur_n))
+            for i in range(self.cur_n):
+                for j in range(i):
+                    self.graph.add_edge(i, j, weight=math.sqrt((1.0*input_data[i][0]-input_data[j][0])^2+(1.0*input_data[i][1]-input_data[j][1])^2))
+
+        elif input_mode == "input_weight": # adjacent matrix input (automatic converted into metric)   input_data:np.2darray
+            self.cur_n=len(input_data)
+            self.graph.add_nodes_from(range(self.cur_n))
+            for i in range(self.cur_n):
+                for j in range(i):
+                    self.graph.add_edge(i, j, weight=input_data[i,j])
+            fl = nx.algorithms.shortest_paths.dense.floyd_warshall_numpy(self.graph)
+            for i in range(self.cur_n):
+                for j in range(i):
+                    self.graph[i][j]["weight"] = fl[i,j]
         else:
-            assert(0)
+            print("input mode wrong")
+            exit(0)
         self.route = []
 
     def min_tree(self, graph=None):
