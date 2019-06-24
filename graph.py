@@ -22,7 +22,7 @@ class Graph:
             self.graph.add_nodes_from(range(self.cur_n))
             for i in range(self.cur_n):
                 for j in range(i):
-                    self.graph.add_edge(i, j, weight=math.sqrt((1.0*input_data[i][0]-input_data[j][0])^2+(1.0*input_data[i][1]-input_data[j][1])^2))
+                    self.graph.add_edge(i, j, weight=math.sqrt((input_data[i][0]-input_data[j][0])*(input_data[i][0]-input_data[j][0])+(input_data[i][1]-input_data[j][1])*(input_data[i][1]-input_data[j][1])))
 
         elif input_mode == "input_weight": # adjacent matrix input (automatic converted into metric)   input_data:np.2darray
             self.cur_n=len(input_data)
@@ -107,7 +107,7 @@ class Graph:
 
     def cal(self):
         cost=0
-        n=self.cur_n
-        for i in range(self.cur_n):
+        n=self.graph.number_of_nodes()
+        for i in range(n):
             cost += self.graph[self.route[i]][self.route[(i+1)%n]]["weight"]
         return cost

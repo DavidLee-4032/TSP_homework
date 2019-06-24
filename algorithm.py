@@ -41,6 +41,7 @@ class Algorithm:
         for i in range(n-1):
             k=g.nearest(result[-1], exclude=result)
             result.append(k[1])
+        g.route = result
         return result
 
     def k_opt(self, k, g, route=None): #n-opt method, factor=1+n^(1/2k)/4   local optimization needs initialize
@@ -133,7 +134,7 @@ class Algorithm:
                                 for i_ in range(j-m):
                                     route1[i_] = route[m+i_+1]
                                 for i_ in range(i-j):
-                                    route1[i_+i-j] = route[i-i_]
+                                    route1[i_+j-m] = route[i-i_]
                                 for i_ in range(n+m-i):
                                     route1[i_+i-m] = route[(-i_+m+n)%n]
                                 route = route1.copy()
@@ -146,6 +147,7 @@ class Algorithm:
                         break
                 if not flag:
                     break
+        g.route=route
         return route
 
     #these are the algorithm for any Euclid graph (can be embedded in an Euclidian plane, thus satisfies tri.inequality)
@@ -170,6 +172,7 @@ class Algorithm:
                     s0 = s
                     ind_s = t
             nlist.insert((ind_s+1)%nelem, index0) # default inserts BEFORE the elem, here modified to AFTER the elem
+        g.route = nlist
         return nlist
 
     def cheapest(self, g): #cheapest method, factor=2
@@ -189,6 +192,7 @@ class Algorithm:
                         cost_min=cost
                         indices=[i,n2]
             nlist.insert((indices[0]+1)%nelem, indices[1])
+        g.route = nlist
         return nlist
 
     def farthest(self, g): #farthest method, factor=log(2,n)+0.16
@@ -211,6 +215,7 @@ class Algorithm:
                     s0 = s
                     ind_s = t
             nlist.insert((ind_s+1)%nelem, index0)
+        g.route = nlist
         return nlist
 
 
