@@ -21,7 +21,7 @@ Argument used:
 --node_max Maximum number of Nodes randomly generated graphs.
 --input_mode You can choose the input mode via this argument:
 "random" Random generate graphs
-"input_weight" input adjacent matrix in 2dmatrix.data
+"input_weight" input adjacent matrix (or corresponding lower triangle matrix) in 2dmatrix.data
 ---example(you can also use the lower diag)---
 0 4 3 6
 4 0 5 4

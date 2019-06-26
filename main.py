@@ -18,8 +18,8 @@ logging.basicConfig(
 
 parser = argparse.ArgumentParser(description='TSP runner')
 parser.add_argument('--graph_nbr', type=int, default='3000', help='number of different graphs to generate')
-parser.add_argument('--node_min', type=int, metavar='nnode',default='60', help="Minimum number of nodes")
-parser.add_argument('--node_max', type=int, metavar='nnode',default='65', help="Maximum number of nodes")
+parser.add_argument('--node_min', type=int, metavar='nnode',default='200', help="Minimum number of nodes")
+parser.add_argument('--node_max', type=int, metavar='nnode',default='210', help="Maximum number of nodes")
 parser.add_argument('--input_mode', metavar='INPUT', default='random', help='Type of graph input (random, input_weight, input_point, files_pr2392)')
 
 
@@ -76,7 +76,7 @@ def main():
         sfile_.close()
     elif args.input_mode=="input_weight":
         with open('2dmatrix.data') as f:
-            array = [int(x) for x in next(f).split()]  # read first line
+            array = [[float(x) for x in next(f).split()]]  # read first line
             for line in f:  # read rest of lines
                 array.append([float(x) for x in line.split()])
         k=len(array[-1])
@@ -102,7 +102,7 @@ def main():
         result_dic["k_opt"]=g1.cal()
         for i in result_dic:
             result_.write(i+"\t"+str(result_dic[i])+"\n")
-
+        """
         sfile_name="data/pa561.opt.tour"
         sfile_ = open(sfile_name, "r")
         sfile=sfile_.readlines()
@@ -114,14 +114,13 @@ def main():
         opt=g1.cal()
         for i in result_dic:
             result_.write(i+"\t"+str(result_dic[i])+"\t"+str(result_dic[i]/opt)+"\n")
-
+        """
     elif args.input_mode=="input_point":
         with open('coordinates.data') as f:
-            w, h = [int(x) for x in next(f).split()]  # read first line
-            node_list = []
+            array = [[float(x) for x in next(f).split()]]  # read first line
             for line in f:  # read rest of lines
-                node_list.append((float(x) for x in line.split()))
-        g1=graph.Graph("input_point",input_data=node_list)
+                array.append([float(x) for x in line.split()])
+        g1=graph.Graph("input_point",input_data=array)
         result_dic={"double_tree":0,"christofides":0,"greed":0,"cheapest":0,"nearest":0,"farthest":0,"k_opt":0}
         alg.double_tree(g1)
         result_dic["double_tree"]=g1.cal()
@@ -139,11 +138,8 @@ def main():
         result_dic["k_opt"]=g1.cal()
         for i in result_dic:
             result_.write(i+"\t"+str(result_dic[i])+"\n")
-
-
-
-    elif args.input_mode=="random": #in random generating, there is only so-called
-        n_test = 100
+    elif args.input_mode=="random": #in random generating, there is only so-called approx ratio
+        n_test = 40
         cum_result_dic={"double_tree":0,"christofides":0,"greed":0,"cheapest":0,"nearest":0,"farthest":0,"k_opt":0}
         for i in range(n_test):
             g1=graph.Graph('random', args.node_min, args.node_max)
@@ -162,7 +158,7 @@ def main():
             alg.k_opt(3,g1)
             cum_result_dic["k_opt"]+=g1.cal()
         for i in cum_result_dic:
-            result_.write(i+"\t"+str(cum_result_dic[i]/1000)+"\n")
+            result_.write(i+"\t"+str(cum_result_dic[i]/n_test)+"\n")
     else:
         exit(0)
 
